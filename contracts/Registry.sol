@@ -30,7 +30,8 @@ contract Registry {
         address token,
         uint256 amount,
         uint hashSecret,
-        uint unlockTimestamp
+        uint unlockTimestamp,
+        string memory test
     ) public {
         _nextBoxId += 1;
         _boxes[_nextBoxId] = Box(
