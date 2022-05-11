@@ -1,6 +1,7 @@
 import { ethers } from "hardhat";
 import { Contract, BigNumber} from "ethers";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { expect } from "chai";
 
 
 export type Box = {
@@ -37,6 +38,8 @@ describe("Full flow", function () {
         const Registry = await ethers.getContractFactory("Registry");
         registry = await Registry.deploy();
 
+        firstCoin.transfer(registry.address, ethers.utils.parseEther("100"))
+
     })
 
     it("create first box", async function () {
@@ -46,12 +49,19 @@ describe("Full flow", function () {
         const hashSecret = ethers.utils.id("secret");
         const unlockTimestamp = (Date.now() / 1000).toFixed();
         
-        await registry.connect(boxCreator).createBox(reciever, token, amount, hashSecret, unlockTimestamp);
-        const newBox = await registry.getBoxById(1);
-
-        console.log(newBox);
+        expect(await registry.connect(boxCreator).createBox(reciever, token, amount, hashSecret, unlockTimestamp)).to.emit(registry, "BoxCreated");
+        const newBox : Box = await registry.getBoxById(1);
 
     })
+
+    it("claim first box", async function () {
+        await registry.connect(boxPicker).claim(1, "secret");
+
+        const newBox : Box = await registry.getBoxById(1);
+        console.log(newBox)
+
+    })
+
 
 
 })
