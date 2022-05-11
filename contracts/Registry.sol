@@ -14,12 +14,12 @@ contract Registry {
         address reciever;
         address token;
         uint256 amount;
-        uint hashSecret;
+        bytes32 hashSecret;
         uint unlockTimestamp;
         bool isActive;
     }
 
-    uint256 private _nextBoxId;
+    uint256 private _boxId;
 
     event BoxCreated(uint256 indexed boxId, address indexed sender);
     event Claim(uint256 indexed boxId, address indexed reciever);
@@ -29,13 +29,12 @@ contract Registry {
         address reciever,
         address token,
         uint256 amount,
-        uint hashSecret,
-        uint unlockTimestamp,
-        string memory test
+        bytes32 hashSecret,
+        uint unlockTimestamp
     ) public {
-        _nextBoxId += 1;
-        _boxes[_nextBoxId] = Box(
-            _nextBoxId,
+        _boxId += 1;
+        _boxes[_boxId] = Box(
+            _boxId,
             msg.sender,
             reciever,
             token,
@@ -44,16 +43,16 @@ contract Registry {
             unlockTimestamp,
             true
         );
-        emit BoxCreated(_nextBoxId, msg.sender);
+        emit BoxCreated(_boxId, msg.sender);
     }
 
-    function claim( //check on testnet if we can see incoming secret in transaction
+    function claim(
         uint256 boxId,
-        uint recieverHashSecret
+        string memory secret
     ) public {
         Box storage box = _boxes[boxId];
         require(box.reciever == msg.sender, "claim: Wrong reciever");
-        require(box.hashSecret == recieverHashSecret, "claim: Wrong secret");
+        require(box.hashSecret == keccak256(abi.encodePacked(secret)), "claim: Wrong secret");
         require(box.isActive, "claim: Sender has withdraw funds");
 
         IERC20(box.token).safeTransfer(msg.sender, box.amount);
@@ -73,6 +72,10 @@ contract Registry {
         box.isActive = false;
         emit Refund(boxId, msg.sender);
     }
+
+    function getBoxById(uint256 boxId) public view returns (Box memory) {
+        return _boxes[boxId];
+    } 
 
     
 }
