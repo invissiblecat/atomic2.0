@@ -50,16 +50,22 @@ describe("Full flow", function () {
         const unlockTimestamp = (Date.now() / 1000).toFixed();
         
         expect(await registry.connect(boxCreator).createBox(reciever, token, amount, hashSecret, unlockTimestamp)).to.emit(registry, "BoxCreated");
-        const newBox : Box = await registry.getBoxById(1);
+
+    })
+
+    it("create second box", async function () {
+        const reciever = boxCreator.address;
+        const token = secondCoin.address;
+        const amount = ethers.utils.parseEther("11");
+        const hashSecret = ethers.utils.id("secret2");
+        const unlockTimestamp = (Date.now() + 10 * 60 * 60 * 1000 / 1000).toFixed();
+        expect(await registry.connect(boxCreator).createBox(reciever, token, amount, hashSecret, unlockTimestamp)).to.emit(registry, "BoxCreated");
 
     })
 
     it("claim first box", async function () {
         await registry.connect(boxPicker).claim(1, "secret");
-
         const newBox : Box = await registry.getBoxById(1);
-        console.log(newBox)
-
     })
 
 
