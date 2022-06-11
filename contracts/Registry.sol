@@ -21,16 +21,17 @@ contract Registry {
 
     uint256 private _boxId;
 
-    event BoxCreated(uint256 indexed boxId, address indexed sender);
-    event Claim(uint256 indexed boxId, address indexed reciever);
-    event Refund(uint256 indexed boxId, address indexed reciever);
+    event BoxCreated(uint256 indexed boxId, address indexed sender, string offchainBoxId);
+    event Claim(uint256 indexed boxId, address indexed reciever, string offchainBoxId);
+    event Refund(uint256 indexed boxId, address indexed reciever, string offchainBoxId);
 
     function createBox(
         address reciever,
         address token,
         uint256 amount,
         bytes32 hashSecret,
-        uint unlockTimestamp
+        uint unlockTimestamp,
+        string memory offchainBoxId
     ) public {
         _boxId += 1;
         _boxes[_boxId] = Box(
@@ -43,12 +44,13 @@ contract Registry {
             unlockTimestamp,
             true
         );
-        emit BoxCreated(_boxId, msg.sender);
+        emit BoxCreated(_boxId, msg.sender, offchainBoxId);
     }
 
     function claim(
         uint256 boxId,
-        string memory secret
+        string memory secret,
+        string memory offchainBoxId
     ) public {
         Box storage box = _boxes[boxId];
         require(box.reciever == msg.sender, "claim: Wrong reciever");
@@ -57,11 +59,12 @@ contract Registry {
 
         IERC20(box.token).safeTransfer(msg.sender, box.amount);
         box.isActive = false;
-        emit Claim(boxId, msg.sender);
+        emit Claim(boxId, msg.sender, offchainBoxId);
     }
 
     function refund(
-        uint256 boxId
+        uint256 boxId,
+        string memory offchainBoxId
     ) public {
         Box storage box = _boxes[boxId];
         require(box.sender == msg.sender, "refund: Msg.sender is not a box creator");
@@ -70,7 +73,7 @@ contract Registry {
 
         IERC20(box.token).safeTransfer(msg.sender, box.amount);
         box.isActive = false;
-        emit Refund(boxId, msg.sender);
+        emit Refund(boxId, msg.sender, offchainBoxId);
     }
 
     function getBoxById(uint256 boxId) public view returns (Box memory) {

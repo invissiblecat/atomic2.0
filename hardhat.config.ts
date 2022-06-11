@@ -33,7 +33,13 @@ const config: HardhatUserConfig = {
     },
     rinkeby: {
       url: process.env.RINKEBY !== undefined ? process.env.RINKEBY : "",
-      accounts: process.env.RINKEBY_PRIVATE_KEY !== undefined ? [process.env.RINKEBY_PRIVATE_KEY] : [],
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      gas: 8000000,
+      gasPrice: 30000000000,
+    },
+    fuji: {
+      url: process.env.FUJI !== undefined ? process.env.FUJI : "",
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       gas: 8000000,
       gasPrice: 30000000000,
     },
