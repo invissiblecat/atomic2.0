@@ -44,6 +44,7 @@ contract Registry {
             unlockTimestamp,
             true
         );
+        IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
         emit BoxCreated(_boxId, msg.sender, offchainBoxId);
     }
 
